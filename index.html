@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiffCraft Studio — Text & File Diff Comparison</title>
+  <meta name="description" content="ระบบเปรียบเทียบข้อความและไฟล์ความเร็วสูง ทำงานบนเบราว์เซอร์ 100% Client-side ปลอดภัยตามนโยบายองค์กร">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a' stroke='%2338bdf8' stroke-opacity='0.4' stroke-width='1.5'/%3E%3Crect x='5' y='5' width='9' height='22' rx='2.5' fill='%2338bdf8' fill-opacity='0.25' stroke='%2338bdf8' stroke-width='2'/%3E%3Crect x='18' y='5' width='9' height='22' rx='2.5' fill='%23818cf8' fill-opacity='0.25' stroke='%23818cf8' stroke-width='2'/%3E%3Cline x1='8' y1='10' x2='11' y2='10' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='21' y1='10' x2='24' y2='10' stroke='%23818cf8' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='8' y1='16' x2='11' y2='16' stroke='%23f43f5e' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='21' y1='16' x2='24' y2='16' stroke='%2310b981' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M14 16h4' stroke='%23f59e0b' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='8' y1='22' x2='11' y2='22' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='21' y1='22' x2='24' y2='22' stroke='%23818cf8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+  <!-- ================= App Header ================= -->
+  <header class="app-header">
+    <div class="top-bar">
+      <div class="brand-section">
+        <div class="brand-logo" title="DiffCraft Studio — Enterprise Diff Service">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="DiffCraft Studio Logo">
+            <!-- Left Source Pane -->
+            <rect x="5" y="5" width="9" height="22" rx="2.5" fill="#38bdf8" fill-opacity="0.22" stroke="#38bdf8" stroke-width="2"/>
+            <!-- Right Target Pane -->
+            <rect x="18" y="5" width="9" height="22" rx="2.5" fill="#818cf8" fill-opacity="0.22" stroke="#818cf8" stroke-width="2"/>
+            <!-- Row 1 Match -->
+            <line x1="8" y1="10" x2="11" y2="10" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+            <line x1="21" y1="10" x2="24" y2="10" stroke="#818cf8" stroke-width="2" stroke-linecap="round"/>
+            <!-- Row 2 Diff Change (Rose / Amber / Emerald) -->
+            <line x1="8" y1="16" x2="11" y2="16" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+            <line x1="21" y1="16" x2="24" y2="16" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+            <path d="M14 16h4" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+            <!-- Row 3 Match -->
+            <line x1="8" y1="22" x2="11" y2="22" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+            <line x1="21" y1="22" x2="24" y2="22" stroke="#818cf8" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <span>DiffCraft Studio</span>
+          <span class="brand-badge">Enterprise</span>
+          <button id="btnVersionChangelog" class="btn btn-ghost btn-pill" style="height:20px; padding:0 6px; font-size:10px; font-family:var(--font-mono); border:1px solid var(--border-color); color:var(--text-accent);" title="ดูประวัติการอัปเดต (Changelog)">v2.2.0</button>
+        </div>
+        <div class="security-badge" id="sessionStatusBadge" title="ระบบแยกพื้นที่ทำงาน (Isolated Workspace) ของผู้ใช้แต่ละคนออกจากกันโดยเด็ดขาด">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span id="sessionStatusText">🛡️ Isolated Workspace</span>
+          <button id="btnDestroySession" class="btn btn-ghost" style="height:18px; padding:0 6px; font-size:10px; margin-left:6px; border:1px solid rgba(248,81,73,0.3); color:#f85149;" title="ลบข้อมูล Session ทันที (Shred Memory)">ลบ Session</button>
+        </div>
+      </div>
+
+      <div class="top-actions">
+
+        <!-- Theme Selector -->
+        <select id="themeSelect" class="select-compact" title="เปลี่ยนธีมสี">
+          <option value="dark">🌙 Dark Studio</option>
+          <option value="classic">🏛️ Classic Retro</option>
+          <option value="light">☀️ Clean Light</option>
+        </select>
+
+        <!-- Language Switcher TH / EN -->
+        <div class="lang-switch-group" id="langSwitchGroup" title="สลับภาษา / Switch Language">
+          <button id="btnLangTh" class="lang-btn active" data-lang="th" title="ภาษาไทย">
+            <svg class="flag-icon" viewBox="0 0 900 600" width="16" height="11" aria-hidden="true">
+              <rect width="900" height="600" fill="#ED1C24"/>
+              <rect y="100" width="900" height="400" fill="#FFFFFF"/>
+              <rect y="200" width="900" height="200" fill="#241D4F"/>
+            </svg>
+            <span>TH</span>
+          </button>
+          <button id="btnLangEn" class="lang-btn" data-lang="en" title="English">
+            <svg class="flag-icon" viewBox="0 0 60 30" width="16" height="11" aria-hidden="true">
+              <rect width="60" height="30" fill="#012169"/>
+              <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+              <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4"/>
+              <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+              <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+            </svg>
+            <span>EN</span>
+          </button>
+        </div>
+
+        <!-- Help / Shortcuts -->
+        <button id="btnHelp" class="btn btn-ghost btn-icon-only" title="คีย์ลัด (Shortcuts)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toolbar Ribbon -->
+    <div class="toolbar-ribbon">
+      <!-- File Operations -->
+      <div class="tool-group">
+        <span class="tool-group-label" data-group="file">ไฟล์</span>
+        <button id="btnSwap" class="btn btn-ghost" title="สลับฝั่งซ้าย-ขวา (Swap Sides)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m16 3 4 4-4 4"></path>
+            <path d="M20 7H4"></path>
+            <path d="m8 21-4-4 4-4"></path>
+            <path d="M4 17h16"></path>
+          </svg>
+          <span id="btnSwapText">สลับ</span>
+        </button>
+        <button id="btnClear" class="btn btn-ghost" title="ล้างข้อความทั้งหมด (Clear)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span id="btnClearText">ล้าง</span>
+        </button>
+        <button id="btnUndo" class="btn btn-ghost" title="ย้อนกลับ (Ctrl+Z)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7v6h6"></path>
+            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+          </svg>
+          <span id="btnUndoText">ย้อนกลับ</span>
+        </button>
+        <button id="btnRedo" class="btn btn-ghost" title="ทำซ้ำ (Ctrl+Y)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 7v6h-6"></path>
+            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+          </svg>
+          <span id="btnRedoText">ทำซ้ำ</span>
+        </button>
+        <select id="encodingSelect" class="select-compact" title="การเข้ารหัสไฟล์ที่ใช้อ่าน (Encoding)">
+          <option value="auto">อ่านอัตโนมัติ (Auto)</option>
+          <option value="utf-8">UTF-8</option>
+          <option value="windows-874">TIS-620 / Windows-874 (ไทย)</option>
+          <option value="utf-16le">UTF-16 LE</option>
+        </select>
+      </div>
+
+      <!-- Diff Navigation -->
+      <div class="tool-group">
+        <span class="tool-group-label" data-group="nav">นำทาง</span>
+        <button id="btnFirstDiff" class="btn btn-icon-only" title="จุดต่างแรกสุด (First Diff)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"></polyline>
+            <line x1="6" y1="6" x2="18" y2="6"></line>
+          </svg>
+        </button>
+        <button id="btnPrevDiff" class="btn" title="จุดต่างก่อนหน้า (Alt + ↑ หรือ Shift + F7)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"></polyline>
+          </svg>
+          <span id="btnPrevDiffText">ก่อนหน้า</span>
+        </button>
+        <span id="diffCounter" class="diff-counter">0 / 0</span>
+        <button id="btnNextDiff" class="btn btn-primary" title="จุดต่างถัดไป (Alt + ↓ หรือ F7)">
+          <span id="btnNextDiffText">ถัดไป</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <button id="btnLastDiff" class="btn btn-icon-only" title="จุดต่างท้ายสุด (Last Diff)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+            <line x1="6" y1="18" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Merge Actions -->
+      <div class="tool-group">
+        <span class="tool-group-label" data-group="merge">ผสาน</span>
+        <button id="btnCopyLeftToRight" class="btn" title="คัดลอกส่วนต่างปัจจุบันจาก ซ้าย ➜ ขวา (Alt + →)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <span id="btnLeftToRightText">ซ้าย ➜ ขวา</span>
+        </button>
+        <button id="btnCopyRightToLeft" class="btn" title="คัดลอกส่วนต่างปัจจุบันจาก ขวา ➜ ซ้าย (Alt + ←)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span id="btnRightToLeftText">ขวา ➜ ซ้าย</span>
+        </button>
+      </div>
+
+      <!-- Filter View -->
+      <div class="tool-group">
+        <span class="tool-group-label" data-group="view">มุมมอง</span>
+        <select id="filterSelect" class="select-compact" title="ตัวกรองการแสดงผล">
+          <option value="all">แสดงทั้งหมด (All Lines)</option>
+          <option value="diffs">เฉพาะที่มีความต่าง (Diffs Only)</option>
+          <option value="same">เฉพาะที่เหมือนกัน (Same Only)</option>
+          <option value="context">ส่วนต่าง + บริบท 2 บรรทัด (Context)</option>
+        </select>
+        <button id="btnToggleLayout" class="btn btn-ghost" title="สลับระหว่าง Side-by-Side และ Unified Mode">
+          <span id="layoutText">Side-by-Side</span>
+        </button>
+        <button id="btnToggleWrap" class="btn btn-ghost" title="ตัดคำขึ้นบรรทัดใหม่เมื่อข้อความยาวเกินหน้าจอ (Word Wrap)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M3 12h15a3 3 0 1 1 0 6h-4M14 18l-3-3 3-3"/>
+          </svg>
+          <span id="wrapText">ตัดคำ</span>
+        </button>
+      </div>
+
+      <!-- Diff Rules / Settings -->
+      <div class="tool-group">
+        <span class="tool-group-label" data-group="rules">กฎเปรียบเทียบ</span>
+        <label class="btn btn-ghost" style="font-size: 11px; cursor: pointer;">
+          <input type="checkbox" id="chkIgnoreCase" style="margin-right: 4px;"> <span id="chkIgnoreCaseText">ไม่สนพิมพ์เล็ก/ใหญ่</span>
+        </label>
+        <select id="whitespaceSelect" class="select-compact" title="การจัดการช่องว่าง (Whitespace)">
+          <option value="none">ตรวจช่องว่างทุกตัว</option>
+          <option value="leading_trailing">ละเว้นช่องว่างหัว/ท้าย</option>
+          <option value="changes">ละเว้นการเปลี่ยนจำนวนช่องว่าง</option>
+          <option value="all">ละเว้นช่องว่างทั้งหมด</option>
+        </select>
+        <label class="btn btn-ghost" style="font-size: 11px; cursor: pointer;">
+          <input type="checkbox" id="chkIgnoreBlankLines" style="margin-right: 4px;"> <span id="chkIgnoreBlankLinesText">ละเว้นบรรทัดว่าง</span>
+        </label>
+      </div>
+
+      <!-- Utilities -->
+      <div class="tool-group" style="margin-left: auto;">
+        <button id="btnJsonBeautify" class="btn btn-ghost" title="จัดรูป JSON สองฝั่งให้อ่านง่ายก่อนเทียบ">
+          <span id="btnJsonFormatText">{ } JSON Format</span>
+        </button>
+        <button id="btnSearch" class="btn btn-ghost" title="ค้นหาข้อความ (Ctrl + F)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span id="btnSearchText">ค้นหา</span>
+        </button>
+        <button id="btnExport" class="btn btn-ghost" title="ส่งออกรายงาน Diff">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="btnExportText">ส่งออก</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= Workspace Area ================= -->
+  <main class="workspace-container">
+    <div class="panes-wrapper" id="panesWrapper">
+
+      <!-- LEFT PANE -->
+      <section class="pane pane-left" id="paneLeft">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <span class="pane-label-badge">LEFT / เดิม</span>
+            <span id="leftFileName" class="pane-filename">Untitled-Left.txt</span>
+            <span id="leftMeta" class="pane-meta">0 บรรทัด</span>
+          </div>
+          <div class="pane-actions">
+            <button id="btnPasteLeft" class="btn btn-ghost" title="วางข้อความจากคลิปบอร์ด (Ctrl+V)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <span id="pasteLeftText">วาง</span>
+            </button>
+            <button id="btnEditLeft" class="btn btn-ghost btn-pill" title="แก้ไขข้อความได้โดยตรง">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+              <span id="editLeftText">แก้ไขได้</span>
+            </button>
+            <button id="btnOpenLeft" class="btn btn-ghost" title="เปิดไฟล์จากคอมพิวเตอร์">
+              <span>เปิดไฟล์...</span>
+            </button>
+            <button id="btnDownloadLeft" class="btn btn-ghost btn-icon-only" title="บันทึกไฟล์ซ้าย (Save)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+            <input type="file" id="fileInputLeft" class="file-input-hidden">
+          </div>
+        </div>
+
+        <div class="pane-viewport" id="viewportLeft">
+          <table class="diff-table" id="tableLeft">
+            <tbody id="tbodyLeft">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
+          <div class="viewport-bottom-spacer"></div>
+
+          <!-- Full Multi-Line Editor for Direct Freeform Editing -->
+          <textarea class="pane-full-editor is-hidden" id="fullEditorLeft" spellcheck="false" placeholder="พิมพ์หรือวางข้อความที่นี่..."></textarea>
+
+          <!-- Empty pane CTA when text is empty -->
+          <div class="empty-pane-cta" id="emptyCtaLeft">
+            <div class="empty-cta-card">
+              <div class="empty-cta-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <h3 id="emptyTitleLeft">ฝั่งซ้ายว่างอยู่ (Left Empty)</h3>
+              <p id="emptyDescLeft">กด <strong>Ctrl + V</strong> เพื่อวางข้อความ หรือคลิกปุ่มด้านล่าง</p>
+              <div class="empty-cta-actions">
+                <button id="btnEmptyPasteLeft" class="btn btn-primary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  </svg>
+                  <span id="emptyBtnPasteTextLeft">วางข้อความ (Ctrl+V)</span>
+                </button>
+                <button id="btnEmptyOpenLeft" class="btn btn-ghost">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span id="emptyBtnOpenTextLeft">เปิดไฟล์...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drag and drop prompt -->
+          <div class="dropzone-overlay" id="dropzoneLeft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <h3>วางไฟล์ข้อความที่นี่ (Left)</h3>
+            <p>หรือพิมพ์ / วางข้อความ (Ctrl+V) ลงในช่องได้โดยตรง</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER SPLITTER & MERGE GUTTER -->
+      <aside class="center-splitter" id="centerSplitter">
+        <div class="splitter-header" title="ปุ่มคัดลอกส่วนต่าง">⇄</div>
+        <div class="splitter-gutter" id="splitterGutter">
+          <!-- Merge buttons row by row align with table rows -->
+        </div>
+      </aside>
+
+      <!-- RIGHT PANE -->
+      <section class="pane pane-right" id="paneRight">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <span class="pane-label-badge">RIGHT / ใหม่</span>
+            <span id="rightFileName" class="pane-filename">Untitled-Right.txt</span>
+            <span id="rightMeta" class="pane-meta">0 บรรทัด</span>
+          </div>
+          <div class="pane-actions">
+            <button id="btnPasteRight" class="btn btn-ghost" title="วางข้อความจากคลิปบอร์ด (Ctrl+V)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <span id="pasteRightText">วาง</span>
+            </button>
+            <button id="btnEditRight" class="btn btn-ghost btn-pill" title="แก้ไขข้อความได้โดยตรง">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+              <span id="editRightText">แก้ไขได้</span>
+            </button>
+            <button id="btnOpenRight" class="btn btn-ghost" title="เปิดไฟล์จากคอมพิวเตอร์">
+              <span>เปิดไฟล์...</span>
+            </button>
+            <button id="btnDownloadRight" class="btn btn-ghost btn-icon-only" title="บันทึกไฟล์ขวา (Save)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+            <input type="file" id="fileInputRight" class="file-input-hidden">
+          </div>
+        </div>
+
+        <div class="pane-viewport" id="viewportRight">
+          <table class="diff-table" id="tableRight">
+            <tbody id="tbodyRight">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
+          <div class="viewport-bottom-spacer"></div>
+
+          <!-- Full Multi-Line Editor for Direct Freeform Editing -->
+          <textarea class="pane-full-editor is-hidden" id="fullEditorRight" spellcheck="false" placeholder="พิมพ์หรือวางข้อความที่นี่..."></textarea>
+
+          <!-- Empty pane CTA when text is empty -->
+          <div class="empty-pane-cta" id="emptyCtaRight">
+            <div class="empty-cta-card">
+              <div class="empty-cta-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <h3 id="emptyTitleRight">ฝั่งขวาว่างอยู่ (Right Empty)</h3>
+              <p id="emptyDescRight">กด <strong>Ctrl + V</strong> เพื่อวางข้อความ หรือคลิกปุ่มด้านล่าง</p>
+              <div class="empty-cta-actions">
+                <button id="btnEmptyPasteRight" class="btn btn-primary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  </svg>
+                  <span id="emptyBtnPasteTextRight">วางข้อความ (Ctrl+V)</span>
+                </button>
+                <button id="btnEmptyOpenRight" class="btn btn-ghost">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span id="emptyBtnOpenTextRight">เปิดไฟล์...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drag and drop prompt -->
+          <div class="dropzone-overlay" id="dropzoneRight">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <h3>วางไฟล์ข้อความที่นี่ (Right)</h3>
+            <p>หรือพิมพ์ / วางข้อความ (Ctrl+V) ลงในช่องได้โดยตรง</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- MINIMAP OVERVIEW STRIP -->
+    <div class="minimap-container" id="minimapContainer" title="คลิกเพื่อเลื่อนไปยังจุดแตกต่าง">
+      <canvas id="minimapCanvas" class="minimap-canvas"></canvas>
+      <div id="minimapSlider" class="minimap-slider"></div>
+    </div>
+  </main>
+
+  <!-- ================= Status Bar ================= -->
+  <footer class="app-statusbar">
+    <div class="status-left">
+      <div class="status-item">
+        <span class="status-stat-pill stat-same" id="statSame">เหมือนกัน: 0</span>
+        <span class="status-stat-pill stat-mod" id="statMod">แก้ไข: 0</span>
+        <span class="status-stat-pill stat-add" id="statAdd">เพิ่ม: 0</span>
+        <span class="status-stat-pill stat-del" id="statDel">ลบ: 0</span>
+      </div>
+      <div class="status-item">
+        <span id="diffBlocksSummary">0 กลุ่มจุดต่าง</span>
+      </div>
+    </div>
+
+    <div class="status-right">
+      <div class="status-item">
+        <span id="statusEncoding">เข้ารหัส: UTF-8</span>
+      </div>
+      <div class="status-item">
+        <kbd>?</kbd> <span id="statusShortcuts">คีย์ลัดช่วยเหลือ</span>
+      </div>
+      <div class="status-item">
+        <span id="statusPoweredBy" style="color: var(--text-muted);">พัฒนาโดย TheOatDev</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= Floating Search Widget ================= -->
+  <div class="search-widget" id="searchWidget">
+    <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาข้อความ... (Enter)">
+    <span id="searchCount" class="search-count">0 / 0</span>
+    <button id="btnSearchPrev" class="btn btn-ghost btn-icon-only" title="ผลลัพธ์ก่อนหน้า">↑</button>
+    <button id="btnSearchNext" class="btn btn-ghost btn-icon-only" title="ผลลัพธ์ถัดไป">↓</button>
+    <button id="btnSearchClose" class="btn btn-ghost btn-icon-only" title="ปิดค้นหา (Esc)">✕</button>
+  </div>
+
+  <!-- ================= Modal: Keyboard Shortcuts ================= -->
+  <div class="modal-backdrop" id="modalShortcuts">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">⌨️ คีย์ลัดการใช้งาน (Keyboard Shortcuts)</div>
+        <button class="btn btn-ghost btn-icon-only btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcut-grid">
+          <div class="shortcut-item">
+            <span>จุดต่างถัดไป (Next Diff)</span>
+            <div><kbd>Alt</kbd> + <kbd>↓</kbd> หรือ <kbd>F7</kbd></div>
+          </div>
+          <div class="shortcut-item">
+            <span>จุดต่างก่อนหน้า (Prev Diff)</span>
+            <div><kbd>Alt</kbd> + <kbd>↑</kbd> หรือ <kbd>Shift</kbd> + <kbd>F7</kbd></div>
+          </div>
+          <div class="shortcut-item">
+            <span>คัดลอก ซ้าย ➜ ขวา</span>
+            <div><kbd>Alt</kbd> + <kbd>→</kbd></div>
+          </div>
+          <div class="shortcut-item">
+            <span>คัดลอก ขวา ➜ ซ้าย</span>
+            <div><kbd>Alt</kbd> + <kbd>←</kbd></div>
+          </div>
+          <div class="shortcut-item">
+            <span>ค้นหาข้อความ (Find)</span>
+            <div><kbd>Ctrl</kbd> + <kbd>F</kbd></div>
+          </div>
+          <div class="shortcut-item">
+            <span>สลับฝั่ง (Swap Sides)</span>
+            <div><kbd>Alt</kbd> + <kbd>S</kbd></div>
+          </div>
+          <div class="shortcut-item">
+            <span>จุดต่างแรกสุด / ท้ายสุด</span>
+            <div><kbd>Home</kbd> / <kbd>End</kbd> (บนแถบนำทาง)</div>
+          </div>
+          <div class="shortcut-item">
+            <span>เปิดหน้าต่างคีย์ลัดนี้</span>
+            <div><kbd>?</kbd></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-close-modal">เข้าใจแล้ว</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal: JSON Beautifier ================= -->
+  <div class="modal-backdrop" id="modalJson">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">{ } JSON Formatter & Beautifier</div>
+        <button class="btn btn-ghost btn-icon-only btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">
+          เครื่องมือจัดรูป JSON ให้อยู่ในรูปแบบ Indent สวยงาม เพื่อให้เปรียบเทียบความแตกต่างระดับ Key/Value ได้ชัดเจน ไม่ติดปัญหาบรรทัดเดียว Minified:
+        </p>
+        <div style="display: flex; gap: 10px;">
+          <button id="btnFormatLeftJson" class="btn btn-primary" style="flex: 1;">จัดรูปฝั่งซ้าย (Format Left)</button>
+          <button id="btnFormatRightJson" class="btn btn-primary" style="flex: 1;">จัดรูปฝั่งขวา (Format Right)</button>
+          <button id="btnFormatBothJson" class="btn btn-primary" style="flex: 1;">จัดรูปทั้งสองฝั่ง (Format Both)</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-close-modal">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal: Export Diff Report ================= -->
+  <div class="modal-backdrop" id="modalExport">
+    <div class="modal-box" style="max-width: 750px;">
+      <div class="modal-header">
+        <div class="modal-title">📄 ส่งออกรายงานความต่าง (Export Diff Report)</div>
+        <button class="btn btn-ghost btn-icon-only btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 10px; color: var(--text-secondary);">
+          เลือกรูปแบบที่ต้องการส่งออก (สามารถเซฟเป็น HTML Report นำไปแนบอีเมล/เอกสารสรุป หรือ Unified Patch สำหรับ Git ได้):
+        </p>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <button id="btnDownloadHtmlReport" class="btn btn-primary">
+            <span>📥 บันทึกเป็น HTML Report (.html)</span>
+          </button>
+          <button id="btnDownloadPatch" class="btn">
+            <span>📋 บันทึกเป็น Unified Patch (.patch)</span>
+          </button>
+          <button id="btnCopyPatchClipboard" class="btn">
+            <span>คัดลอก Patch ไปยัง Clipboard</span>
+          </button>
+        </div>
+        <textarea id="patchPreview" class="modal-code-area" readonly placeholder="ตัวอย่าง Patch..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost btn-close-modal">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal: Changelog ================= -->
+  <div class="modal-backdrop" id="modalChangelog">
+    <div class="modal-box" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title">📦 บันทึกการอัปเดตระบบ (Changelog & Versioning)</div>
+        <button class="btn btn-ghost btn-icon-only btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body" style="font-size: 13px;">
+        <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <strong style="color: var(--text-accent); font-size: 14px;">v2.2.0 — Undo, Encoding & Save</strong>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">2026-10-16</span>
+          </div>
+          <ul style="padding-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+            <li><strong>Undo / Redo</strong>: ย้อนกลับและทำซ้ำการแก้ไข, merge, การวาง และการเปิดไฟล์ ด้วยปุ่มหรือ <kbd>Ctrl</kbd> + <kbd>Z</kbd> / <kbd>Ctrl</kbd> + <kbd>Y</kbd></li>
+            <li><strong>Encoding Selection</strong>: เลือกการอ่านไฟล์เป็น Auto / UTF-8 / TIS-620 (Windows-874) / UTF-16 LE รองรับไฟล์ภาษาไทยรุ่นเก่า</li>
+            <li><strong>Save to File</strong>: <kbd>Ctrl</kbd> + <kbd>S</kbd> บันทึกกลับไฟล์เดิม คงค่า CRLF และ BOM (ใช้ได้เต็มรูปแบบบน Chromium; เบราว์เซอร์อื่นจะดาวน์โหลดไฟล์แทน)</li>
+            <li><strong>Thai Word Diff</strong>: ไฮไลต์ความต่างระดับคำภาษาไทยได้ถูกต้อง</li>
+            <li><strong>Fixes</strong>: Unified Patch ใช้เลขบรรทัดจริง, escape ชื่อไฟล์ในรายงาน HTML, แก้การแก้ไขสองฝั่งชนกันตอน debounce, จำกัดจำนวน Session และรองรับไฟล์ที่มีบรรทัดยาวมาก</li>
+          </ul>
+        </div>
+        <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <strong style="color: var(--text-primary); font-size: 14px;">v2.1.0 — Standalone & Enterprise Release</strong>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">2026-10-15</span>
+          </div>
+          <ul style="padding-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+            <li><strong>Enterprise Custom Dialogs & Toast</strong>: ยกเลิก Dialog ดั้งเดิมของเบราว์เซอร์ทั้งหมด เปลี่ยนเป็น Custom Modal UI ของระบบเอง 100% พร้อม Toast Notifications</li>
+            <li><strong>Smart Paste & Drag-Drop</strong>: กด <kbd>Ctrl</kbd> + <kbd>V</kbd> วางข้อความได้ทันทีจากทุกที่, เพิ่มปุ่มวางเฉพาะฝั่ง, การ์ด Empty State และรองรับการ Drag & Drop ข้อความดิบ</li>
+            <li><strong>Standalone Release.zip</strong>: รันแบบพกพาโดยไม่ต้องลงโปรแกรม ดับเบิลคลิกเปิดไฟล์ <code>index.html</code> ใช้งานได้ทันที 100% Offline</li>
+            <li><strong>Text Wrap Mode (ตัดคำ)</strong>: เพิ่มโหมดตัดคำขึ้นบรรทัดใหม่เมื่อข้อความยาว พร้อมล็อกระดับความสูงแถวซ้าย-ขวาให้ตรงกันเสมอ</li>
+            <li><strong>Bilingual UI (TH/EN)</strong>: สลับภาษาไทยและอังกฤษได้ทันที จดจำภาษาอัตโนมัติ</li>
+            <li><strong>Rebranding to DiffCraft Studio</strong>: เปลี่ยนชื่อระบบเพื่อความปลอดภัยและมาตรฐานเครื่องหมายการค้า</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <strong style="color: var(--text-primary); font-size: 14px;">v2.0.0 — Production TypeScript & Multi-User Isolation</strong>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">2026-10-15</span>
+          </div>
+          <ul style="padding-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+            <li><strong>TypeScript Migration</strong>: พัฒนาระบบใหม่ด้วย TypeScript 100% ทั้งฝั่ง Client และ Server</li>
+            <li><strong>Strict Multi-User Isolation</strong>: แยก Session ใน Memory ไม่มีการแชร์ข้อมูลข้ามผู้ใช้</li>
+            <li><strong>In-Memory Auto-Reaper & Shredder</strong>: ลบ Session อัตโนมัติเมื่อไม่มีการใช้งาน และปุ่มล้าง Memory ทันที</li>
+            <li><strong>Docker & Compose Ready</strong>: รองรับการ Deploy ระดับองค์กรพร้อมจำกัด Resource</li>
+          </ul>
+        </div>
+
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <strong style="color: var(--text-primary); font-size: 14px;">v1.0.0 — Initial Release</strong>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">2026-10-15</span>
+          </div>
+          <ul style="padding-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+            <li>Side-by-side diff view พร้อมเลขบรรทัด และ Synchronized Scrolling</li>
+            <li>Intra-line word & character difference highlights</li>
+            <li>Minimap overview gutter, bidirectional merge, JSON beautifier และ HTML Diff Report export</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-close-modal">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= System Custom Dialog Modal (Alert / Confirm / Prompt) ================= -->
+  <div class="modal-backdrop system-dialog-backdrop" id="modalSystemDialog" role="dialog" aria-modal="true">
+    <div class="modal-box system-dialog-box" id="systemDialogBox">
+      <div class="modal-header system-dialog-header">
+        <div class="system-dialog-title-group">
+          <div class="system-dialog-icon" id="dialogIcon"></div>
+          <div class="modal-title" id="dialogTitle">ยืนยันการทำรายการ</div>
+        </div>
+        <button id="dialogBtnClose" class="btn btn-ghost btn-icon-only">✕</button>
+      </div>
+      <div class="modal-body system-dialog-body">
+        <p id="dialogMessage" class="system-dialog-text"></p>
+        <div id="dialogInputWrapper" class="system-dialog-input-wrapper" style="display: none; margin-top: 14px;">
+          <textarea id="dialogInput" class="system-dialog-textarea" rows="6" placeholder=""></textarea>
+        </div>
+      </div>
+      <div class="modal-footer system-dialog-footer">
+        <button id="dialogBtnCancel" class="btn btn-ghost">ยกเลิก</button>
+        <button id="dialogBtnConfirm" class="btn btn-primary">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Standalone IIFE / Module Bundle (Runs locally offline and on server) -->
+  <script src="js/bundle.js"></script>
+</body>
+</html>
