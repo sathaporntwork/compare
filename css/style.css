@@ -9,6 +9,7 @@
   --bg-toolbar: #13171f;
   --border-color: #30363d;
   --border-subtle: #21262d;
+  --gutter-width: 48px;
   
   --text-primary: #e6edf3;
   --text-secondary: #8b949e;
@@ -856,8 +857,20 @@ body {
    ========================================================================== */
 .diff-table {
   width: 100%;
-  border-collapse: collapse;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
+}
+
+.diff-table col.col-gutter {
+  width: var(--gutter-width, 48px);
+  min-width: var(--gutter-width, 48px);
+  max-width: var(--gutter-width, 48px);
+}
+
+.diff-table col.col-content {
+  width: auto;
 }
 
 .diff-row {
@@ -878,6 +891,18 @@ body {
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
+  box-sizing: border-box;
+}
+
+.virtual-spacer td.gutter-col {
+  width: var(--gutter-width, 48px);
+  min-width: var(--gutter-width, 48px);
+  max-width: var(--gutter-width, 48px);
+  background-color: var(--line-num-bg) !important;
+  border-right: 1px solid var(--border-subtle) !important;
+  position: sticky;
+  left: 0;
+  z-index: 5;
 }
 
 .diff-row.is-active-diff {
@@ -891,9 +916,10 @@ body {
 }
 
 .gutter-col {
-  width: 48px;
-  min-width: 48px;
-  max-width: 48px;
+  width: var(--gutter-width, 48px);
+  min-width: var(--gutter-width, 48px);
+  max-width: var(--gutter-width, 48px);
+  box-sizing: border-box;
   text-align: right;
   padding: 0 8px;
   font-size: 11px;
@@ -902,6 +928,9 @@ body {
   border-right: 1px solid var(--border-subtle);
   user-select: none;
   cursor: pointer;
+  position: sticky;
+  left: 0;
+  z-index: 5;
 }
 
 .gutter-col:hover {
