@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DiffCraft Studio — Text & File Diff Comparison</title>
   <meta name="description" content="ระบบเปรียบเทียบข้อความและไฟล์ความเร็วสูง ทำงานบนเบราว์เซอร์ 100% Client-side ปลอดภัยตามนโยบายองค์กร">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2.2.0">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a' stroke='%2338bdf8' stroke-opacity='0.4' stroke-width='1.5'/%3E%3Crect x='5' y='5' width='9' height='22' rx='2.5' fill='%2338bdf8' fill-opacity='0.25' stroke='%2338bdf8' stroke-width='2'/%3E%3Crect x='18' y='5' width='9' height='22' rx='2.5' fill='%23818cf8' fill-opacity='0.25' stroke='%23818cf8' stroke-width='2'/%3E%3Cline x1='8' y1='10' x2='11' y2='10' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='21' y1='10' x2='24' y2='10' stroke='%23818cf8' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='8' y1='16' x2='11' y2='16' stroke='%23f43f5e' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='21' y1='16' x2='24' y2='16' stroke='%2310b981' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M14 16h4' stroke='%23f59e0b' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='8' y1='22' x2='11' y2='22' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='21' y1='22' x2='24' y2='22' stroke='%23818cf8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -445,6 +445,40 @@
     </div>
   </main>
 
+  <!-- ================= Line Details Pane (Beyond Compare Context Inspector) ================= -->
+  <section class="line-details-pane" id="lineDetailsPane">
+    <div class="line-details-header">
+      <div class="line-details-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="21" y1="6" x2="3" y2="6"></line>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+          <line x1="21" y1="18" x2="7" y2="18"></line>
+        </svg>
+        <span id="lineDetailsTitle">รายละเอียดบรรทัดที่เลือก (Line Details)</span>
+        <span id="lineDetailsBadge" class="line-details-badge">คลิกบรรทัดในตารางเพื่อดูความต่าง</span>
+      </div>
+      <div class="line-details-actions">
+        <button id="btnToggleLineDetails" class="btn btn-ghost btn-icon-only" title="ย่อ/ขยายแถบรายละเอียด">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="iconLineDetailsToggle">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="line-details-body" id="lineDetailsBody">
+      <div class="line-details-row" id="lineDetailsRowLeft">
+        <span class="line-details-tag tag-left">LEFT</span>
+        <span class="line-details-num" id="lineDetailsLeftNum">-</span>
+        <div class="line-details-code" id="lineDetailsLeftCode"><span style="color: var(--text-muted);">(คลิกเลือกบรรทัดในตารางเพื่อดูการเปรียบเทียบแบบขยาย)</span></div>
+      </div>
+      <div class="line-details-row" id="lineDetailsRowRight">
+        <span class="line-details-tag tag-right">RIGHT</span>
+        <span class="line-details-num" id="lineDetailsRightNum">-</span>
+        <div class="line-details-code" id="lineDetailsRightCode"><span style="color: var(--text-muted);">(คลิกเลือกบรรทัดในตารางเพื่อดูการเปรียบเทียบแบบขยาย)</span></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= Status Bar ================= -->
   <footer class="app-statusbar">
     <div class="status-left">
@@ -593,10 +627,11 @@
       <div class="modal-body" style="font-size: 13px;">
         <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-            <strong style="color: var(--text-accent); font-size: 14px;">v2.2.0 — Undo, Encoding & Save</strong>
+            <strong style="color: var(--text-accent); font-size: 14px;">v2.2.0 — Beyond Compare Mode, Undo, Encoding & Save</strong>
             <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">2026-10-16</span>
           </div>
           <ul style="padding-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+            <li><strong>Beyond Compare Line Details & Red Diff</strong>: เพิ่มแถบ Line Details ด้านล่างสำหรับตรวจสอบคู่บรรทัดแบบขยายเจาะลึกระดับตัวอักษร พร้อมโทนสีแดง Beyond Compare แท้ทั้งสองฝั่ง (ไม่ใช้สีเขียวแบบ Git) และนำเส้นขีดฆ่าตรงกลางออกเพื่อความสบายตา</li>
             <li><strong>Undo / Redo</strong>: ย้อนกลับและทำซ้ำการแก้ไข, merge, การวาง และการเปิดไฟล์ ด้วยปุ่มหรือ <kbd>Ctrl</kbd> + <kbd>Z</kbd> / <kbd>Ctrl</kbd> + <kbd>Y</kbd></li>
             <li><strong>Encoding Selection</strong>: เลือกการอ่านไฟล์เป็น Auto / UTF-8 / TIS-620 (Windows-874) / UTF-16 LE รองรับไฟล์ภาษาไทยรุ่นเก่า</li>
             <li><strong>Save to File</strong>: <kbd>Ctrl</kbd> + <kbd>S</kbd> บันทึกกลับไฟล์เดิม คงค่า CRLF และ BOM (ใช้ได้เต็มรูปแบบบน Chromium; เบราว์เซอร์อื่นจะดาวน์โหลดไฟล์แทน)</li>

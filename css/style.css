@@ -26,27 +26,27 @@
   --diff-same-bg: #0e1117;
   --diff-same-text: #c9d1d9;
   
-  --diff-mod-bg: rgba(210, 153, 34, 0.15);
-  --diff-mod-gutter: #d29922;
-  --diff-mod-text: #f0883e;
-  --diff-mod-char-bg: rgba(240, 136, 62, 0.35);
-  --diff-mod-char-text: #ffcf96;
+  --diff-mod-bg: rgba(248, 81, 73, 0.12);
+  --diff-mod-gutter: #f85149;
+  --diff-mod-text: #ff7b72;
+  --diff-mod-char-bg: rgba(248, 81, 73, 0.40);
+  --diff-mod-char-text: #ffffff;
   
-  --diff-add-bg: rgba(46, 160, 67, 0.16);
-  --diff-add-gutter: #3fb950;
-  --diff-add-text: #3fb950;
-  --diff-add-char-bg: rgba(63, 185, 80, 0.38);
-  --diff-add-char-text: #aff5b4;
+  --diff-add-bg: rgba(248, 81, 73, 0.14);
+  --diff-add-gutter: #f85149;
+  --diff-add-text: #ff7b72;
+  --diff-add-char-bg: rgba(248, 81, 73, 0.40);
+  --diff-add-char-text: #ffffff;
   
-  --diff-del-bg: rgba(248, 81, 73, 0.16);
+  --diff-del-bg: rgba(248, 81, 73, 0.14);
   --diff-del-gutter: #f85149;
-  --diff-del-text: #f85149;
-  --diff-del-char-bg: rgba(248, 81, 73, 0.38);
-  --diff-del-char-text: #ffd8d6;
+  --diff-del-text: #ff7b72;
+  --diff-del-char-bg: rgba(248, 81, 73, 0.40);
+  --diff-del-char-text: #ffffff;
   
   --diff-empty-bg: #13171d;
   --diff-empty-stripe: rgba(255, 255, 255, 0.02);
-  --diff-active-row-bg: rgba(88, 166, 255, 0.12);
+  --diff-active-row-bg: rgba(88, 166, 255, 0.15);
   --diff-active-row-border: #58a6ff;
 
   --line-num-text: #6e7681;
@@ -85,21 +85,21 @@
   --btn-primary-hover: #b02a2a;
   --btn-primary-text: #ffffff;
   
-  /* Classic BC Red-tinted diffs */
+  /* Classic BC Red-tinted diffs (Authentic Beyond Compare) */
   --diff-same-bg: #fcfbf8;
   --diff-same-text: #222222;
   
-  --diff-mod-bg: #fff5e6;
-  --diff-mod-gutter: #c67c13;
-  --diff-mod-text: #961212;
-  --diff-mod-char-bg: #ffd1cc;
-  --diff-mod-char-text: #a10000;
+  --diff-mod-bg: #fff0f2;
+  --diff-mod-gutter: #b82828;
+  --diff-mod-text: #b82828;
+  --diff-mod-char-bg: #ffc2c2;
+  --diff-mod-char-text: #770000;
   
-  --diff-add-bg: #eafbe7;
-  --diff-add-gutter: #2a8e32;
-  --diff-add-text: #0f6f17;
-  --diff-add-char-bg: #bfeec4;
-  --diff-add-char-text: #05480a;
+  --diff-add-bg: #ffebee;
+  --diff-add-gutter: #b82828;
+  --diff-add-text: #b82828;
+  --diff-add-char-bg: #ffc2c2;
+  --diff-add-char-text: #770000;
   
   --diff-del-bg: #ffebee;
   --diff-del-gutter: #b82828;
@@ -143,17 +143,17 @@
   --diff-same-bg: #ffffff;
   --diff-same-text: #1f2328;
   
-  --diff-mod-bg: #fff8c5;
-  --diff-mod-gutter: #9a6700;
-  --diff-mod-text: #7d4e00;
-  --diff-mod-char-bg: #f8e3a1;
-  --diff-mod-char-text: #5f3700;
+  --diff-mod-bg: #fff1f0;
+  --diff-mod-gutter: #cf222e;
+  --diff-mod-text: #cf222e;
+  --diff-mod-char-bg: #ffc1ba;
+  --diff-mod-char-text: #82071e;
   
-  --diff-add-bg: #dafbe1;
-  --diff-add-gutter: #1a7f37;
-  --diff-add-text: #1a7f37;
-  --diff-add-char-bg: #aceebb;
-  --diff-add-char-text: #116329;
+  --diff-add-bg: #ffebe9;
+  --diff-add-gutter: #cf222e;
+  --diff-add-text: #cf222e;
+  --diff-add-char-bg: #ffc1ba;
+  --diff-add-char-text: #82071e;
   
   --diff-del-bg: #ffebe9;
   --diff-del-gutter: #cf222e;
@@ -532,9 +532,9 @@ body {
 }
 
 .pane-right .pane-label-badge {
-  background-color: rgba(63, 185, 80, 0.2);
-  color: #3fb950;
-  border: 1px solid rgba(63, 185, 80, 0.4);
+  background-color: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
 }
 
 .pane-filename {
@@ -971,7 +971,6 @@ body {
   color: var(--diff-del-char-text);
   border-radius: 2px;
   font-weight: 600;
-  text-decoration: line-through;
   padding: 0 1px;
 }
 
@@ -1081,10 +1080,142 @@ body {
   font-weight: 600;
 }
 
-.stat-mod { background: rgba(210, 153, 34, 0.2); color: #d29922; }
-.stat-add { background: rgba(63, 185, 80, 0.2); color: #3fb950; }
+.stat-mod { background: rgba(248, 81, 73, 0.2); color: #f85149; }
+.stat-add { background: rgba(248, 81, 73, 0.2); color: #f85149; }
 .stat-del { background: rgba(248, 81, 73, 0.2); color: #f85149; }
 .stat-same { background: rgba(110, 118, 129, 0.2); color: var(--text-muted); }
+
+/* ==========================================================================
+   Beyond Compare Line Details Pane (Bottom Context Inspector)
+   ========================================================================== */
+.line-details-pane {
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  z-index: 15;
+}
+
+.line-details-pane.is-collapsed .line-details-body {
+  display: none;
+}
+
+.line-details-header {
+  height: 26px;
+  background-color: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-size: 11px;
+}
+
+.line-details-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.line-details-badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background-color: rgba(248, 81, 73, 0.15);
+  color: var(--diff-del-text);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+  font-family: var(--font-mono);
+}
+
+.line-details-actions {
+  display: flex;
+  align-items: center;
+}
+
+.line-details-body {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 8px;
+  background-color: var(--diff-same-bg);
+  gap: 4px;
+  max-height: 130px;
+  overflow-y: auto;
+}
+
+.line-details-row {
+  display: flex;
+  align-items: stretch;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  min-height: 24px;
+}
+
+.line-details-row.diff-active {
+  border-color: rgba(248, 81, 73, 0.4);
+  background-color: var(--diff-del-bg);
+}
+
+.line-details-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  border-right: 1px solid var(--border-subtle);
+  user-select: none;
+}
+
+.line-details-tag.tag-left {
+  background-color: rgba(248, 81, 73, 0.15);
+  color: #f85149;
+}
+
+.line-details-tag.tag-right {
+  background-color: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.line-details-num {
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  color: var(--line-num-text);
+  background-color: var(--line-num-bg);
+  border-right: 1px solid var(--border-subtle);
+  font-size: 11px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.line-details-code {
+  padding: 2px 10px;
+  flex: 1;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text-primary);
+}
+
+/* Active Row in Diff Table */
+.diff-row.is-active-row {
+  background-color: var(--diff-active-row-bg) !important;
+}
+.diff-row.is-active-row .gutter-col {
+  background-color: var(--diff-active-row-border) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
 
 /* ==========================================================================
    Modal Dialogs & Drawers
