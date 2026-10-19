@@ -866,6 +866,20 @@ body {
   border: none;
 }
 
+.virtual-spacer {
+  pointer-events: none;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.virtual-spacer td {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
 .diff-row.is-active-diff {
   background-color: var(--diff-active-row-bg) !important;
 }

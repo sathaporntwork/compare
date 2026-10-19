@@ -1,5 +1,5 @@
 ========================================================================
-DiffCraft Studio v2.2.0 (Portable Standalone Edition)
+DiffCraft Studio v2.3.0 (Portable Standalone Edition)
 Zero Installation - 100% Client-Side - 100% Offline & Corporate Policy Safe
 ========================================================================
 
